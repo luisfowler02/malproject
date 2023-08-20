@@ -29,7 +29,7 @@ class Anime:
         num = 0
 
 
-        while float(score) >= 9.00:
+        while float(score) >= 8.00:
             # Takes all individual anime pages from each myanimelist top anime page
             user_agent = UserAgent()
             random_agent = user_agent.random
@@ -53,7 +53,7 @@ class Anime:
                     html = requests.get(url)
                     soup = BeautifulSoup(html.content, 'html.parser')
                     score = soup.find(itemprop='ratingValue').text
-                    if float(score) < 9.00:
+                    if float(score) < 8.00:
                         break
                     title = soup.find('h1').text
                     ranked = soup.find('span', class_='numbers ranked')
@@ -66,10 +66,10 @@ class Anime:
                     anime_obj = Anime(rank, title, score, genre_list)
                     anime_objects.append(anime_obj)
                     num = num + 1
-                    # print(rank)
-                    # print(title)
-                    # print(score)
-                    # print(genre_list)
+                    print(rank)
+                    print(title)
+                    print(score)
+                    print(genre_list)
                     time.sleep(ran_num)
             limit_num += 50
             base_url = 'https://myanimelist.net/topanime.php' + f'?limit={limit_num}'
