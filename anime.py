@@ -44,8 +44,7 @@ class Anime:
                     if link_tag:
                             href = link_tag.get('href')
                             href_list.append(href)
-            ran_num = random.randint(1,2)
-            time.sleep(ran_num)
+            time.sleep(3)
 
 
             # Scrapes wanted data from each anime page
@@ -70,7 +69,7 @@ class Anime:
                     print(title)
                     print(score)
                     print(genre_list)
-                    time.sleep(ran_num)
+                    time.sleep(3)
             limit_num += 50
             base_url = 'https://myanimelist.net/topanime.php' + f'?limit={limit_num}'
             colored_text = colored(f'{num} objects have been created', 'red', attrs=['bold'])
