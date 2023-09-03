@@ -28,12 +28,13 @@ class Anime:
         limit_num = 0
         num = 0
 
+        user_agent = UserAgent()
+        random_agent = user_agent.random
+        headers = {'User-Agent': random_agent}
 
         while float(score) >= 8.00:
             # Takes all individual anime pages from each myanimelist top anime page
-            user_agent = UserAgent()
-            random_agent = user_agent.random
-            headers = {'User-Agent': random_agent}
+        
             url_list.append(base_url)
             html = requests.get(url_list[-1], headers=headers)
             soup = BeautifulSoup(html.content, "html.parser")

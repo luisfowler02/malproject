@@ -1,6 +1,7 @@
 import pymongo
 from anime import Anime
 from termcolor import colored
+from random import choice
 
 client = pymongo.MongoClient('mongodb://localhost:27017/')
 db = client['anime_db']
@@ -28,10 +29,20 @@ def insert_anime_objects(anime_objects):
 	print(colored_text)
 	print(colored('-' * 40, 'white'))
 
+def get_anime_by_genre(genre):
+	query = {'genres': genre}
+	animes = list(collection.find(query))
+	random_anime = choice(animes)
+	return random_anime
 
-if __name__ == '__main__':
-	anime_list = Anime.scrape_from_myanimelist()
-	insert_anime_objects(anime_list)
-	color_text = colored('Database Insertion Complete', 'red', 'on_green')
-	print(color_text)
+
+# anime_list = Anime.scrape_from_myanimelist()
+# insert_anime_objects(anime_list)
+# color_text = colored('Database Insertion Complete', 'red', 'on_green')
+# print(color_text)
+
+# anime_choice = collection.find('genres': 'Sci-Fi')
+# print(anime_choice)
+
+
 
