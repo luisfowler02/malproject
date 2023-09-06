@@ -4,19 +4,27 @@ import time
 from termcolor import colored
 import random
 from fake_useragent import UserAgent
+import pymongo
+
+client = pymongo.MongoClient('mongodb://localhost:27017/')
+db = client['anime_db']
+collection = db['animes']
+
 
 class Anime:
-    def __init__(self, rank, title, score, genres):
+    def __init__(self, rank, title, score, genres, image_link):
         self.rank = rank
         self.title = title
         self.score = score
         self.genres = genres
+        self.image_link = image_link
 
     def display_details(self):
         print(f"Rank: {self.rank}")
         print(f"Title: {self.title}")
         print(f"Score: {self.score}")
         print(f"Genres: {','.join(self.genres)}")
+        print(f"Image Link: {self.image_link}")
 
     @staticmethod
     # Scrapes all wanted data from each anime on a page and makes an object for each anime
@@ -38,7 +46,7 @@ class Anime:
             url_list.append(base_url)
             html = requests.get(url_list[-1], headers=headers)
             soup = BeautifulSoup(html.content, "html.parser")
-            animes_links = soup.find_all('h3', class_='hoverinfo_trigger')
+            animes_links = soup.find_all('h3', class_='fl-l fs14 fw-b anime_ranking_h3')
             href_list = []
             for link in animes_links:
                     link_tag = link.find('a')
@@ -63,13 +71,15 @@ class Anime:
                     genre_list = []
                     for genre in genres:
                             genre_list.append(genre.text)
-                    anime_obj = Anime(rank, title, score, genre_list)
+                    image_link = soup.find(itemprop='image')['data-src']
+                    anime_obj = Anime(rank, title, score, genre_list, image_link)
                     anime_objects.append(anime_obj)
                     num = num + 1
                     print(rank)
                     print(title)
                     print(score)
                     print(genre_list)
+                    print(image_link)
                     time.sleep(3)
             limit_num += 50
             base_url = 'https://myanimelist.net/topanime.php' + f'?limit={limit_num}'

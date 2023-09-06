@@ -51,8 +51,8 @@ class AnimeChooserApp:
 		if result:
 			self.root.destroy()
 
-if __name__ == '__main__':
-	root = tk.Tk()
-	app = AnimeChooserApp(root)
-	root.protocol('WM_DELETE_WINDOW', app.confirm_exit)
-	root.mainloop()
+# if __name__ == '__main__':
+# 	root = tk.Tk()
+# 	app = AnimeChooserApp(root)
+# 	root.protocol('WM_DELETE_WINDOW', app.confirm_exit)
+# 	root.mainloop()

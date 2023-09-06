@@ -15,7 +15,8 @@ def insert_anime_objects(anime_objects):
 		'rank': anime_obj.rank,
 		'title': anime_obj.title,
 		'score': anime_obj.score,
-		'genres': anime_obj.genres
+		'genres': anime_obj.genres,
+		'image link' : anime_obj.image_link
 
 		}
 
@@ -36,13 +37,7 @@ def get_anime_by_genre(genre):
 	return random_anime
 
 
-# anime_list = Anime.scrape_from_myanimelist()
-# insert_anime_objects(anime_list)
-# color_text = colored('Database Insertion Complete', 'red', 'on_green')
-# print(color_text)
-
-# anime_choice = collection.find('genres': 'Sci-Fi')
-# print(anime_choice)
-
-
-
+anime_list = Anime.scrape_from_myanimelist()
+insert_anime_objects(anime_list)
+color_text = colored('Database Insertion Complete', 'red', 'on_green')
+print(color_text)
