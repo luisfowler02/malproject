@@ -1,8 +1,15 @@
 from random import choice
 import tkinter as tk
 from tkinter import ttk, messagebox, Label
-import anime_database as db
+import anime_database as my_database
 import pymongo
+from PIL import Image, ImageTk
+import requests
+import io
+
+client = pymongo.MongoClient('mongodb://localhost:27017/')
+db = client['anime_db']
+collection = db['animes']
 
 genre_list = ['Action','Adventure','Avant Garde','Award Winning','Boys Love','Comedy',
 				  'Drama','Fantasy','Girls Love','Gourmet','Horror','Mystery','Romance',
@@ -37,22 +44,36 @@ class AnimeChooserApp:
 		self.label = Label(root, text='')
 		self.label.pack()
 
+		self.image_label = Label(self.root)
+		self.image_label.pack()
+
 		random_anime_button = ttk.Button(self.root,text='Generate Anime',command=self.anime_choice)
 		random_anime_button.pack()
 
 	def anime_choice(self):
 		selected_genre = self.genre_var.get()
-		random_anime = db.get_anime_by_genre(selected_genre)
+		random_anime = my_database.get_anime_by_genre(selected_genre)
 		self.label.config(text=random_anime['title'])
-		
+
+		image_url = random_anime['image link']
+		response = requests.get(image_url)
+
+		if response.status_code == 200:
+			image_data = io.BytesIO(response.content)
+			img = Image.open(image_data)
+			img = ImageTk.PhotoImage(img)
+			self.image_label.config(image=img)
+			self.image_label.image = img
+		else:
+			print(f'Failed to retrieved image from URL: {image_url}')		
 
 	def confirm_exit(self):
 		result = messagebox.askyesno("Confirmation", "Are you sure you want to exit?")
 		if result:
 			self.root.destroy()
 
-# if __name__ == '__main__':
-# 	root = tk.Tk()
-# 	app = AnimeChooserApp(root)
-# 	root.protocol('WM_DELETE_WINDOW', app.confirm_exit)
-# 	root.mainloop()
+if __name__ == '__main__':
+	root = tk.Tk()
+	app = AnimeChooserApp(root)
+	root.protocol('WM_DELETE_WINDOW', app.confirm_exit)
+	root.mainloop()
