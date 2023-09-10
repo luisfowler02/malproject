@@ -1,6 +1,6 @@
 from random import choice
 import tkinter as tk
-from tkinter import ttk, messagebox, Label
+from tkinter import ttk, messagebox, Label, Frame
 import anime_database as my_database
 import pymongo
 from PIL import Image, ImageTk
@@ -28,32 +28,53 @@ class AnimeChooserApp:
 
 	def __init__(self, root):
 		self.root = root
-		self.root.title("Anime Chooser")
+		root.title("Anime Chooser")
+		root.maxsize(900,600)
+		self.root.config(bg="skyblue")
 		self.create_widgets()
-
 
 	def create_widgets(self):
 
-		genre_label = ttk.Label(self.root, text = "Select Genre:")
-		genre_label.pack()
+		self.left_frame = Frame(self.root, width=200, height=400, bg='grey')
+		self.left_frame.grid(row=0, column=0, padx=10, pady=5)
+
+		self.right_frame = Frame(self.root, width=650, height=400,bg='skyblue')
+		self.right_frame.grid(row=0, column=1, padx=10, pady=5)
+
+		genre_label = Label(self.left_frame, text = "Select Genre:")
+		genre_label.grid(row=0,column=0,padx=5,pady=5)
 
 		self.genre_var = tk.StringVar()
-		genre_combo = ttk.Combobox(self.root,textvariable=self.genre_var, state='readonly', values=genre_list)
-		genre_combo.pack()
+		genre_combo = ttk.Combobox(self.left_frame, textvariable=self.genre_var, state='readonly', values=genre_list)
+		genre_combo.grid(row=1,column=0,padx=5,pady=5)
 
-		self.label = Label(root, text='')
-		self.label.pack()
+		self.label = Label(self.right_frame, text='',bg='skyblue')
+		self.label.grid(row=0,column=0,padx=5,pady=5)
 
-		self.image_label = Label(self.root)
-		self.image_label.pack()
+		self.image_label = Label(self.right_frame,bg='skyblue')
+		self.image_label.grid(row=1,column=0,padx=5,pady=5)
 
-		random_anime_button = ttk.Button(self.root,text='Generate Anime',command=self.anime_choice)
-		random_anime_button.pack()
+		self.label2 = Label(self.left_frame,bg='grey')
+		self.label2.grid(row=3,column=0,padx=5,pady=5)
+
+		self.label3 = Label(self.left_frame,bg='grey')
+		self.label3.grid(row=4,column=0,padx=5,pady=5)
+
+		self.label4 = Label(self.left_frame,bg='grey')
+		self.label4.grid(row=5,column=0,padx=5,pady=5)
+
+		random_anime_button = ttk.Button(self.left_frame,text='Generate Anime',command=self.anime_choice).grid(row=2,column=0,padx=5,pady=5)
 
 	def anime_choice(self):
 		selected_genre = self.genre_var.get()
 		random_anime = my_database.get_anime_by_genre(selected_genre)
-		self.label.config(text=random_anime['title'])
+
+		self.label.config(text=random_anime['title'],bg='white')
+		self.label2.config(text=f'Rank: {random_anime["rank"]}',bg='white')
+		self.label3.config(text=f'Score: {random_anime["score"]}',bg='white')
+		seperator = "\n"
+		result_string = seperator.join(random_anime["genres"])
+		self.label4.config(text=f'Genres: \n{result_string}',bg='white')
 
 		image_url = random_anime['image link']
 		response = requests.get(image_url)
@@ -61,9 +82,15 @@ class AnimeChooserApp:
 		if response.status_code == 200:
 			image_data = io.BytesIO(response.content)
 			img = Image.open(image_data)
+			img = img.resize((400,500))
 			img = ImageTk.PhotoImage(img)
-			self.image_label.config(image=img)
-			self.image_label.image = img
+			
+			if self.image_label:
+				self.image_label.config(image=img)
+				self.image_label.image = img
+			else:
+				self.image_label = Label(self.right_frame, image=img)
+				self.image_label.grid(row=1,column=0,padx=5,pady=5)
 		else:
 			print(f'Failed to retrieved image from URL: {image_url}')		
 

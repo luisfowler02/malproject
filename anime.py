@@ -42,17 +42,20 @@ class Anime:
 
         while float(score) >= 8.00:
             # Takes all individual anime pages from each myanimelist top anime page
-        
-            url_list.append(base_url)
-            html = requests.get(url_list[-1], headers=headers)
-            soup = BeautifulSoup(html.content, "html.parser")
-            animes_links = soup.find_all('h3', class_='fl-l fs14 fw-b anime_ranking_h3')
-            href_list = []
-            for link in animes_links:
-                    link_tag = link.find('a')
-                    if link_tag:
-                            href = link_tag.get('href')
-                            href_list.append(href)
+            try:
+                url_list.append(base_url)
+                html = requests.get(url_list[-1], headers=headers)
+                soup = BeautifulSoup(html.content, "html.parser")
+                animes_links = soup.find_all('h3', class_='fl-l fs14 fw-b anime_ranking_h3')
+                href_list = []
+                for link in animes_links:
+                        link_tag = link.find('a')
+                        if link_tag:
+                                href = link_tag.get('href')
+                                href_list.append(href)
+            except:
+                print('HTML structure likely changed on top anime page')
+                
             time.sleep(3)
 
 
