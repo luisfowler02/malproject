@@ -7,10 +7,6 @@ from PIL import Image, ImageTk
 import requests
 import io
 
-client = pymongo.MongoClient('mongodb://localhost:27017/')
-db = client['anime_db']
-collection = db['animes']
-
 genre_list = ['Action','Adventure','Avant Garde','Award Winning','Boys Love','Comedy',
 				  'Drama','Fantasy','Girls Love','Gourmet','Horror','Mystery','Romance',
 				  'Sci-Fi','Slice of Life','Sports','Supernatural','Suspense','Ecchi',

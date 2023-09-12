@@ -4,12 +4,6 @@ import time
 from termcolor import colored
 import random
 from fake_useragent import UserAgent
-import pymongo
-
-client = pymongo.MongoClient('mongodb://localhost:27017/')
-db = client['anime_db']
-collection = db['animes']
-
 
 class Anime:
     def __init__(self, rank, title, score, genres, image_link):

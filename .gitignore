@@ -1,0 +1,6 @@
+# Ignore files with .pyc and .pyo extensions
+*.pyc
+__pycache__/
+
+# Ignore tester file
+test.py
