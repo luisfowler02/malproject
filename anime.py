@@ -34,7 +34,7 @@ class Anime:
         random_agent = user_agent.random
         headers = {'User-Agent': random_agent}
 
-        while float(score) >= 8.00:
+        while float(score) >= 7.00:
             # Takes all individual anime pages from each myanimelist top anime page
             try:
                 url_list.append(base_url)
@@ -58,7 +58,7 @@ class Anime:
                     html = requests.get(url)
                     soup = BeautifulSoup(html.content, 'html.parser')
                     score = soup.find(itemprop='ratingValue').text
-                    if float(score) < 8.00:
+                    if float(score) < 7.00:
                         break
                     title = soup.find('h1').text
                     ranked = soup.find('span', class_='numbers ranked')
