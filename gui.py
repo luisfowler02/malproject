@@ -1,6 +1,6 @@
 from random import choice
 import tkinter as tk
-from tkinter import ttk, messagebox, Label, Frame
+from tkinter import ttk, messagebox, Label, Frame, Menu, Toplevel
 import anime_database as my_database
 import pymongo
 from PIL import Image, ImageTk
@@ -25,7 +25,8 @@ class AnimeChooserApp:
 	def __init__(self, root):
 		self.root = root
 		root.title("Anime Chooser")
-		root.maxsize(900,600)
+		root.geometry('1300x800')
+		root.maxsize(1500,900)
 		self.root.config(bg="skyblue")
 		self.create_widgets()
 
@@ -65,9 +66,21 @@ class AnimeChooserApp:
 
 		random_anime_button = ttk.Button(self.left_frame,text='Generate Anime',command=self.anime_choice).grid(row=3,column=0,padx=5,pady=5)
 
+		menu = Menu(self.root)
+		self.root.config(menu=menu)
+		filemenu = Menu(menu, tearoff=0)
+		menu.add_cascade(label='Settings', menu=filemenu)
+		filemenu.add_command(label='Preferences', command=self.preferences_click)
+
+
 	def anime_choice(self):
 		selected_genre = self.genre_var.get()
 		selected_score = self.score_var.get()
+
+		if not selected_genre or not selected_score:
+			messagebox.showerror('Error')
+			return
+
 		random_anime = my_database.get_anime_by_genre_score(selected_genre,selected_score)
 
 		if random_anime is not None:
@@ -105,10 +118,17 @@ class AnimeChooserApp:
 			else:
 				pass
 
+
 	def confirm_exit(self):
 		result = messagebox.askyesno("Confirmation", "Are you sure you want to exit?")
 		if result:
 			self.root.destroy()
+
+	def preferences_click(self):
+		sub_window = Toplevel(root)
+		sub_window.title('Preferences')
+		sub_window.geometry('320x240+125+125')
+
 
 if __name__ == '__main__':
 	root = tk.Tk()
