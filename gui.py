@@ -6,6 +6,7 @@ import pymongo
 from PIL import Image, ImageTk
 import requests
 import io
+from termcolor import colored
 
 genre_list = ['Action','Adventure','Avant Garde','Award Winning','Boys Love','Comedy',
 				  'Drama','Fantasy','Girls Love','Gourmet','Horror','Mystery','Romance',
@@ -29,6 +30,11 @@ class AnimeChooserApp:
 		root.maxsize(1500,900)
 		self.root.config(bg="skyblue")
 		self.create_widgets()
+		self.history_stack_backward = []
+		self.history_stack_forward = []
+		self.current_anime = None
+		self.random_anime = ''
+
 
 	def create_widgets(self):
 
@@ -64,7 +70,9 @@ class AnimeChooserApp:
 		self.label4 = Label(self.left_frame,bg='grey')
 		self.label4.grid(row=6,column=0,padx=5,pady=5)
 
-		random_anime_button = ttk.Button(self.left_frame,text='Generate Anime',command=self.anime_choice).grid(row=3,column=0,padx=5,pady=5)
+		random_anime_button = tk.Button(self.left_frame,text='Generate Anime',command=self.anime_choice).grid(row=3,column=0,padx=5,pady=5)
+		back_button = tk.Button(self.right_frame,text='Back',bg='skyblue',command=self.previous_anime).grid(row=2,column=0,padx=5,pady=5)
+		forward_button = tk.Button(self.right_frame,text='Next',bg='skyblue',command=self.next_anime).grid(row=2,column=1,padx=5,pady=5)
 
 		menu = Menu(self.root)
 		self.root.config(menu=menu)
@@ -74,6 +82,8 @@ class AnimeChooserApp:
 
 
 	def anime_choice(self):
+		if self.current_anime is not None:
+			self.history_stack_backward.append(self.current_anime)
 		selected_genre = self.genre_var.get()
 		selected_score = self.score_var.get()
 
@@ -81,17 +91,17 @@ class AnimeChooserApp:
 			messagebox.showerror('Error')
 			return
 
-		random_anime = my_database.get_anime_by_genre_score(selected_genre,selected_score)
+		self.random_anime = my_database.get_anime_by_genre_score(selected_genre,selected_score)
 
-		if random_anime is not None:
-			self.label.config(text=random_anime['title'],bg='white')
-			self.label2.config(text=f'Rank: {random_anime["rank"]}',bg='white')
-			self.label3.config(text=f'Score: {random_anime["score"]}',bg='white')
+		if self.random_anime is not None:
+			self.label.config(text=self.random_anime['title'],bg='white')
+			self.label2.config(text=f'Rank: {self.random_anime["rank"]}',bg='white')
+			self.label3.config(text=f'Score: {self.random_anime["score"]}',bg='white')
 			seperator = "\n"
-			result_string = seperator.join(random_anime["genres"])
+			result_string = seperator.join(self.random_anime["genres"])
 			self.label4.config(text=f'Genres: \n{result_string}',bg='white')
 
-			image_url = random_anime['image link']
+			image_url = self.random_anime['image link']
 			response = requests.get(image_url)
 
 			if response.status_code == 200:
@@ -106,8 +116,12 @@ class AnimeChooserApp:
 				else:
 					self.image_label = Label(self.right_frame, image=img)
 					self.image_label.grid(row=1,column=0,padx=5,pady=5)
+
 			else:
-				print(f'Failed to retrieved image from URL: {image_url}')		
+				print(f'Failed to retrieved image from URL: {image_url}')	
+
+			# self.history_stack_backward.append(self.random_anime)	
+			self.current_anime = self.random_anime
 		else:
 			self.label.config(text='Anime with this Genre and Score does not exist',bg='white')
 			self.label2.config(text='',bg='grey')
@@ -117,7 +131,23 @@ class AnimeChooserApp:
 				self.image_label.config(image='')
 			else:
 				pass
+		
+		colored_text = colored('Current Anime','blue',attrs=['bold'])
+		print(colored_text)
+		print(self.current_anime['title'])
 
+		colored_text = colored('Previous Animes','blue',attrs=['bold'])
+		print(colored_text)
+		for info in self.history_stack_backward:
+			print(info["title"])
+
+		colored_text = colored('Next Animes','blue',attrs=['bold'])
+		print(colored_text)
+		for info in self.history_stack_forward:
+			print(info['title'])
+
+		colored_text = colored('-' * 40,'red',attrs=['bold'])
+		print(colored_text)
 
 	def confirm_exit(self):
 		result = messagebox.askyesno("Confirmation", "Are you sure you want to exit?")
@@ -128,6 +158,112 @@ class AnimeChooserApp:
 		sub_window = Toplevel(root)
 		sub_window.title('Preferences')
 		sub_window.geometry('320x240+125+125')
+
+	def previous_anime(self):
+		if len(self.history_stack_backward) <= 0 and len(self.history_stack_forward) == 0:
+			pass
+		elif len(self.history_stack_backward) > 0:
+			self.history_stack_forward.append(self.current_anime)
+			popped_anime = self.history_stack_backward.pop()
+			self.label.config(text=popped_anime["title"])
+			self.label2.config(text=f'Rank: {popped_anime["rank"]}')
+			self.label3.config(text=f'Score: {popped_anime["score"]}')
+			seperator = "\n"
+			result_string = seperator.join(popped_anime["genres"])
+			self.label4.config(text=f'Genres: \n{result_string}')
+
+			image_url = popped_anime['image link']
+			response = requests.get(image_url)
+
+			if response.status_code == 200:
+				image_data = io.BytesIO(response.content)
+				img = Image.open(image_data)
+				img = img.resize((400,500))
+				img = ImageTk.PhotoImage(img)
+				
+				if self.image_label:
+					self.image_label.config(image=img)
+					self.image_label.image = img
+				else:
+					self.image_label = Label(self.right_frame, image=img)
+					self.image_label.grid(row=1,column=0,padx=5,pady=5)
+
+			else:
+				print(f'Failed to retrieved image from URL: {image_url}')
+
+			self.current_anime = popped_anime
+
+			colored_text = colored('Current Anime','blue',attrs=['bold'])
+			print(colored_text)
+			print(self.current_anime['title'])
+
+			colored_text = colored('Previous Animes','blue',attrs=['bold'])
+			print(colored_text)
+			for info in self.history_stack_backward:
+				print(info["title"])
+
+			colored_text = colored('Next Animes','blue',attrs=['bold'])
+			print(colored_text)
+			for info in self.history_stack_forward:
+				print(info['title'])
+
+			colored_text = colored('-' * 40,'red',attrs=['bold'])
+			print(colored_text)
+
+	def next_anime(self):
+
+		if len(self.history_stack_forward) == 0:
+			pass
+		else:
+			self.history_stack_backward.append(self.current_anime)
+			# initial_pop = self.history_stack_backward.append(self.history_stack_forward.pop())
+			popped_anime = self.history_stack_forward.pop()
+
+			self.label.config(text=popped_anime["title"])
+			self.label2.config(text=f'Rank: {popped_anime["rank"]}')
+			self.label3.config(text=f'Score: {popped_anime["score"]}')
+			seperator = "\n"
+			result_string = seperator.join(popped_anime["genres"])
+			self.label4.config(text=f'Genres: \n{result_string}')
+
+			image_url = popped_anime['image link']
+			response = requests.get(image_url)
+
+			if response.status_code == 200:
+				image_data = io.BytesIO(response.content)
+				img = Image.open(image_data)
+				img = img.resize((400,500))
+				img = ImageTk.PhotoImage(img)
+				
+				if self.image_label:
+					self.image_label.config(image=img)
+					self.image_label.image = img
+				else:
+					self.image_label = Label(self.right_frame, image=img)
+					self.image_label.grid(row=1,column=0,padx=5,pady=5)
+
+			else:
+				print(f'Failed to retrieved image from URL: {image_url}')
+
+			self.current_anime = popped_anime
+
+			colored_text = colored('Current Anime','blue',attrs=['bold'])
+			print(colored_text)
+			print(self.current_anime['title'])
+
+			colored_text = colored('Previous Animes','blue',attrs=['bold'])
+			print(colored_text)
+			for info in self.history_stack_backward:
+				print(info["title"])
+				
+			colored_text = colored('Next Animes','blue',attrs=['bold'])
+			print(colored_text)
+			for info in self.history_stack_forward:
+				print(info['title'])
+
+			colored_text = colored('-' * 40,'red',attrs=['bold'])
+			print(colored_text)
+
 
 
 if __name__ == '__main__':
