@@ -8,7 +8,7 @@ import requests
 import io
 from termcolor import colored
 
-genre_list = ['Action','Adventure','Avant Garde','Award Winning','Boys Love','Comedy',
+genre_list = ['','Action','Adventure','Avant Garde','Award Winning','Boys Love','Comedy',
 				  'Drama','Fantasy','Girls Love','Gourmet','Horror','Mystery','Romance',
 				  'Sci-Fi','Slice of Life','Sports','Supernatural','Suspense','Ecchi',
 				  'Adult Cast', 'Anthropomorphic','CGDCT','Childcare',
@@ -44,6 +44,9 @@ class AnimeChooserApp:
 		self.right_frame = Frame(self.root, width=650, height=400,bg='skyblue')
 		self.right_frame.grid(row=0, column=1, padx=10, pady=5)
 
+		self.button_frame = Frame(self.root, width=100,height=100,bg='grey')
+		self.button_frame.grid(row=1,column=0,padx=10,pady=5)
+
 		genre_score_label = Label(self.left_frame, text = "Select Genre and Score:")
 		genre_score_label.grid(row=0,column=0,padx=5,pady=5)
 
@@ -52,7 +55,7 @@ class AnimeChooserApp:
 		genre_combo.grid(row=1,column=0,padx=5,pady=5)
 
 		self.score_var = tk.StringVar()
-		score_combo = ttk.Combobox(self.left_frame, textvariable=self.score_var, state='readonly', values=['7','8','9'])
+		score_combo = ttk.Combobox(self.left_frame, textvariable=self.score_var, state='readonly', values=['','7','8','9'])
 		score_combo.grid(row=2, column=0, padx=5, pady=5)
 
 		self.label = Label(self.right_frame, text='',bg='skyblue')
@@ -69,10 +72,12 @@ class AnimeChooserApp:
 
 		self.label4 = Label(self.left_frame,bg='grey')
 		self.label4.grid(row=6,column=0,padx=5,pady=5)
-
+	
 		random_anime_button = tk.Button(self.left_frame,text='Generate Anime',command=self.anime_choice).grid(row=3,column=0,padx=5,pady=5)
-		back_button = tk.Button(self.right_frame,text='Back',bg='skyblue',command=self.previous_anime).grid(row=2,column=0,padx=5,pady=5)
-		forward_button = tk.Button(self.right_frame,text='Next',bg='skyblue',command=self.next_anime).grid(row=2,column=1,padx=5,pady=5)
+		info_button = tk.Button(self.left_frame,text='?',command=self.tooltip).grid(row=0,column=1,padx=5,pady=5)
+		back_button = tk.Button(self.button_frame,text='Back',bg='skyblue',command=self.previous_anime).grid(row=0,column=0,padx=5,pady=5)
+		forward_button = tk.Button(self.button_frame,text='Next',bg='skyblue',command=self.next_anime).grid(row=0,column=1,padx=5,pady=5)
+		
 
 		menu = Menu(self.root)
 		self.root.config(menu=menu)
@@ -87,11 +92,14 @@ class AnimeChooserApp:
 		selected_genre = self.genre_var.get()
 		selected_score = self.score_var.get()
 
-		if not selected_genre or not selected_score:
-			messagebox.showerror('Error')
-			return
-
-		self.random_anime = my_database.get_anime_by_genre_score(selected_genre,selected_score)
+		if not selected_genre and not selected_score:
+			self.random_anime = my_database.get_random_anime()
+		elif selected_genre and selected_score:
+			self.random_anime = my_database.get_anime_by_genre_score(selected_genre,selected_score)
+		elif selected_genre and not selected_score:
+			self.random_anime = my_database.get_anime_by_genre(selected_genre)
+		elif not selected_genre and selected_score:
+			self.random_anime = my_database.get_anime_by_score(selected_score)
 
 		if self.random_anime is not None:
 			self.label.config(text=self.random_anime['title'],bg='white')
@@ -119,8 +127,7 @@ class AnimeChooserApp:
 
 			else:
 				print(f'Failed to retrieved image from URL: {image_url}')	
-
-			# self.history_stack_backward.append(self.random_anime)	
+	
 			self.current_anime = self.random_anime
 		else:
 			self.label.config(text='Anime with this Genre and Score does not exist',bg='white')
@@ -216,7 +223,6 @@ class AnimeChooserApp:
 			pass
 		else:
 			self.history_stack_backward.append(self.current_anime)
-			# initial_pop = self.history_stack_backward.append(self.history_stack_forward.pop())
 			popped_anime = self.history_stack_forward.pop()
 
 			self.label.config(text=popped_anime["title"])
@@ -263,6 +269,33 @@ class AnimeChooserApp:
 
 			colored_text = colored('-' * 40,'red',attrs=['bold'])
 			print(colored_text)
+
+	def tooltip(self):
+		sub_window = Toplevel(root)
+		sub_window.title('How To Use')
+		sub_window.geometry('1200x750+125+125')
+		label5 = Label(sub_window,text='Generating Random Animes\n\n'
+									   'Generate Completely Random Anime:\n' 
+									   'Leave both genre and score dropdown boxes empty and click generate.\n\n'
+									   'Generate Random Anime with a Given Genre:\n'
+									   'Leave score box empty and select a desired genre, then click generate.\n\n'
+									   'Generate Random Anime with a Given Score:\n'
+									   'Leave genre box empty and select a desired score, then click generate.\n\n'
+									   'Generate Random Anime with Given Genre and Score:\n'
+									   'Select desired genre and score and then click generate.\n\n'
+									   'How to Use Back and Next Buttons\n\n'
+									   '*Animes will be cleared after every opening of app, so after you close your window,\n' 
+									   'previously generated animes will be lost.*\n\n'
+									   'Back Button:\n'
+									   'Click back button to see previous anime generated\n\n'
+									   'Next Button:\n'
+									   'Click next button to see animes in front of your previous ones.',font=('Arial',10))
+		label5.pack()
+		# if not self.label5['text'].strip():
+		# 	self.label5.config(text='testing')
+		# else:
+		# 	self.label5.config(text='')
+
 
 
 

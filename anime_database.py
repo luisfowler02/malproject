@@ -36,11 +36,62 @@ def insert_anime_objects(anime_objects):
 	print(colored_text)
 	print(colored('-' * 40, 'white'))
 
+def get_random_anime():
+	animes = list(collection.find())
+	random_anime = choice(animes)
+	return random_anime
+
 def get_anime_by_genre(genre):
 	query = {'genres': genre}
 	animes = list(collection.find(query))
 	random_anime = choice(animes)
 	return random_anime
+
+def get_anime_by_score(score):
+	if score == '7':
+		min_score = '7.00'
+		max_score = '7.99'
+		try:
+			query = {'score':{
+				 	 '$gte': min_score,
+				 	 '$lte': max_score
+				 	 }
+				 	 }
+			animes = list(collection.find(query))
+		except:
+			print('Anime with this score does not exist')
+
+	elif score == '8':
+		min_score = '8.00'
+		max_score = '8.99'
+		try:
+			query = {'score':{
+				 	 '$gte': min_score,
+				 	 '$lte': max_score
+				 	 }
+				 	 }
+			animes = list(collection.find(query))
+		except:
+			print('Anime with this score does not exist')
+		
+	elif score == '9':
+		min_score = '9.00'
+		max_score = '9.99'
+		try:
+			query = {'score':{
+				 	 '$gte': min_score,
+				 	 '$lte': max_score
+				 	 }
+				 	 }
+			animes = list(collection.find(query))
+		except:
+			print('Anime with this score does not exist')
+	try:
+		random_anime = choice(animes)
+		return random_anime
+	except IndexError:
+		return None
+
 
 def get_anime_by_genre_score(genre,score):
 	if score == '7':
