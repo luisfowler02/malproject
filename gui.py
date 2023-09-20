@@ -2,6 +2,7 @@ from random import choice
 import tkinter as tk
 from tkinter import ttk, messagebox, Label, Frame, Menu, Toplevel
 import anime_database as my_database
+import anime
 import pymongo
 from PIL import Image, ImageTk
 import requests
@@ -47,6 +48,9 @@ class AnimeChooserApp:
 		self.button_frame = Frame(self.root, width=100,height=100,bg='grey')
 		self.button_frame.grid(row=1,column=0,padx=10,pady=5)
 
+		self.season_frame = Frame(self.root, width=100,height=100,bg='grey')
+		self.season_frame.grid(row=2,column=0,padx=10,pady=5)
+
 		genre_score_label = Label(self.left_frame, text = "Select Genre and Score:")
 		genre_score_label.grid(row=0,column=0,padx=5,pady=5)
 
@@ -77,8 +81,8 @@ class AnimeChooserApp:
 		info_button = tk.Button(self.left_frame,text='?',command=self.tooltip).grid(row=0,column=1,padx=5,pady=5)
 		back_button = tk.Button(self.button_frame,text='Back',bg='skyblue',command=self.previous_anime).grid(row=0,column=0,padx=5,pady=5)
 		forward_button = tk.Button(self.button_frame,text='Next',bg='skyblue',command=self.next_anime).grid(row=0,column=1,padx=5,pady=5)
+		season_anime_button = tk.Button(self.season_frame,text="This Season's Animes", command=self.display_seasonal_anime).grid(row=0,column=0,padx=5,pady=5)
 		
-
 		menu = Menu(self.root)
 		self.root.config(menu=menu)
 		filemenu = Menu(menu, tearoff=0)
@@ -164,7 +168,10 @@ class AnimeChooserApp:
 	def preferences_click(self):
 		sub_window = Toplevel(root)
 		sub_window.title('Preferences')
-		sub_window.geometry('320x240+125+125')
+		sub_window.geometry('600x600+900+300')
+		label = Label(sub_window,text="Future option customization will be added")
+		label.pack()
+		# button = tk.Button(sub_window)
 
 	def previous_anime(self):
 		if len(self.history_stack_backward) <= 0 and len(self.history_stack_forward) == 0:
@@ -273,7 +280,7 @@ class AnimeChooserApp:
 	def tooltip(self):
 		sub_window = Toplevel(root)
 		sub_window.title('How To Use')
-		sub_window.geometry('1200x750+125+125')
+		sub_window.geometry('1200x750+300+200')
 		label5 = Label(sub_window,text='Generating Random Animes\n\n'
 									   'Generate Completely Random Anime:\n' 
 									   'Leave both genre and score dropdown boxes empty and click generate.\n\n'
@@ -291,10 +298,26 @@ class AnimeChooserApp:
 									   'Next Button:\n'
 									   'Click next button to see animes in front of your previous ones.',font=('Arial',10))
 		label5.pack()
-		# if not self.label5['text'].strip():
-		# 	self.label5.config(text='testing')
-		# else:
-		# 	self.label5.config(text='')
+
+	def display_seasonal_anime(self):
+		pass
+		# anime_objects = Anime.get_seasonal_anime()
+		# for anime in anime_objects:
+		# 	title = anime.title
+		# 	score = anime.score
+		# 	rank = anime.rank
+		# 	genres = anime.genres
+		# 	image_link = anime.image_link
+		# 	response = requests.get(image_link)
+
+		# 	if response.status_code == 200:
+		# 		image_data = io.BytesIO(response.content)
+		# 		img = Image.open(image_data)
+		# 		img = img.resize((400,500))
+		# 		img = ImageTk.PhotoImage(img)
+				
+		# 	else:
+		# 		print(f'Failed to retrieved image from URL: {image_url}')
 
 
 
